@@ -105,7 +105,7 @@ def downloadStats(dev_ip, panos_key, job_id):
 def submitStats(file_name, opts):
     """Test function to submit stats dump for SLR generation"""
     file1 = open(file_name, 'r')
-    url = "http://riskreporttest.paloaltonetworks.com/API/v1/Create"
+    url = "https://riskreport.paloaltonetworks.com/API/v1/Create"
     headers = {"apiKey" : opts['cspKey']}
     file = {"file1":('stats_dump.tar.gz', file1, 'application/gzip')}
     payload = {"EmailIdList" : ",".join(opts['EmailIdList']),
