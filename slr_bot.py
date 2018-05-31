@@ -75,6 +75,8 @@ def jobChecker(dev_ip, panos_key, job_id):
         if status_req.status_code != 200:
             print("Request to check job status failed. Please log into device and " \
                   "download the stats dump manually. Exiting now.")
+            print(status_req)
+            print(status_req.text)
             exit(1)
         status_xml = et.fromstring(status_req.content)
         status = status_xml.find('./result/job/status').text
@@ -83,6 +85,7 @@ def jobChecker(dev_ip, panos_key, job_id):
             progress = status_xml.find('./result/job/progress').text
             print("Stats dump job progress: {}%".format(progress))
         sleep(5)
+    print('stats dump file creation complete')
     return result
 
 
@@ -95,6 +98,7 @@ def downloadStats(dev_ip, panos_key, job_id):
                  "job-id" : job_id,
                  "key" : panos_key}
     dl_req = requests.get("https://{}/api/?".format(dev_ip), params=dl_params, stream=True, verify=False)
+    print('downloading stats dump file')
     with open(stats_file, 'wb') as f:
         for chunk in dl_req.iter_content(chunk_size=1024):
             if chunk:
@@ -111,6 +115,7 @@ def submitStats(file_name, opts):
     payload = {"EmailIdList" : ",".join(opts['EmailIdList']),
                "RequestedBy" : opts["RequestedBy"],
                "PreparedBy" : opts['PreparedBy']}
+    print('uploading stats file and SLR parameters')
     slr_req = requests.post(url, headers=headers, data=payload, files=file)
     if slr_req.status_code != 200:
         print("There was an issue submitting the stats dump:\n".format(slr_req.content))
@@ -144,6 +149,7 @@ def main():
     job_key = genStats(fw_ip, key)
     stats_file = downloadStats(fw_ip, key, job_key)
     submitStats(stats_file, options)
+    print('SLR creation complete. Check email provided in conf file')
 
 
 
