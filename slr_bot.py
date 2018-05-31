@@ -34,7 +34,7 @@ def readOpts():
 
 def getKey(dev_IP):
     """Retrieves an API key from the porvided firewall"""
-    user = raw_input("Enter the API user name: ")
+    user = input("Enter the API user name: ")
     passwd = getpass.getpass("Enter the API password: ")
     key_params = {"type" : "keygen",
               "user" : user,
@@ -114,6 +114,8 @@ def submitStats(file_name, opts):
     slr_req = requests.post(url, headers=headers, data=payload, files=file)
     if slr_req.status_code != 200:
         print("There was an issue submitting the stats dump:\n".format(slr_req.content))
+        print(slr_req)
+        print(slr_req.text)
         exit(1)
     print(slr_req.content)
     print("Cleaning up stats dump.")
