@@ -9,7 +9,11 @@ import sys
 from time import sleep
 import os
 
-
+# be able to support python 2.x or 3.x data input
+try:
+   input = raw_input
+except NameError:
+   pass
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
