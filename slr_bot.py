@@ -15,6 +15,7 @@ try:
 except NameError as e:
    print("Error assigning raw_input as input")
    print(e)
+   exit(1)
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
