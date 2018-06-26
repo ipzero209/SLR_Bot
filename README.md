@@ -5,29 +5,19 @@ This version does require you to enter the username and password for the firewal
 that you are running the SLR against when the script is run. This can be modified
 as needed.
 
-## NOTE: For python3.6 in this repo
-Use the develop branch - master is from the original source
-This is a fork and code modified for python 3.6 that isn't merged back to the source
 
-For a python virtual environment include these additional steps in the cloned repo:
-
-Go into the repo directory
-
-```
-python3.6 -m venv env
-source env/bin/activate
-pip install -r requirements.txt
-```
 
 The configuration file ('slr.conf') contains the options currently supported by 
 the script. These options (and format) are:
 
-PreparedBy:your name
-sendTo:recipient1@yourcompany.com
-sendTo:recipient2@yourcompany.com
-RequestedBy:requestor@yourcompany.com
+PreparedBy:your name<br>
+sendTo:recipient1@yourcompany.com<br>
+sendTo:recipient2@yourcompany.com<br>
+RequestedBy:requestor@yourcompany.com<br>
 cspKey:your_csp_Key
 
+
+<br><br><br>
 
 You can have up to 20 sendTo recipients per SLR request. In case you would like
 to modify the script to include the other supported parameters, the complete list
