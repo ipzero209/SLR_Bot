@@ -9,7 +9,11 @@ import sys
 from time import sleep
 import os
 
-
+# be able to support python 2.x or 3.x data input
+try:
+   input = raw_input
+except NameError:
+   pass
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -26,15 +30,15 @@ def readOpts():
         else:
             opts_dict[line[0]] = line[1]
     if len(opts_dict['EmailIdList']) > 20:
-        print "Maximum number of recipients is 20. Please remove 'sendTo' entries" \
-              " in the configuration file until this criteria is met. Exiting now."
+        print("Maximum number of recipients is 20. Please remove 'sendTo' entries" \
+              " in the configuration file until this criteria is met. Exiting now.")
         exit(1)
     return opts_dict
 
 
 def getKey(dev_IP):
     """Retrieves an API key from the porvided firewall"""
-    user = raw_input("Enter the API user name: ")
+    user = input("Enter the API user name: ")
     passwd = getpass.getpass("Enter the API password: ")
     key_params = {"type" : "keygen",
               "user" : user,
@@ -52,14 +56,14 @@ def genStats(dev_ip, panos_key):
                    "key" : panos_key}
     stats_req = requests.get("https://{}/api/?".format(dev_ip), params=stat_params, verify=False)
     if stats_req.status_code != 200:
-        print "Request to generate stats dump failed. Exiting now."
+        print("Request to generate stats dump failed. Exiting now.")
         exit(1)
     stats_xml = et.fromstring(stats_req.content)
     job_id = stats_xml.find('./result/job').text
     job_result = jobChecker(dev_ip, panos_key, job_id)
     if job_result != "OK":
-        print "There was an issue with generating the statsdump. Please check " \
-              "the device."
+        print("There was an issue with generating the statsdump. Please check " \
+              "the device.")
     return job_id
 
 
@@ -73,16 +77,19 @@ def jobChecker(dev_ip, panos_key, job_id):
     while status != "FIN":
         status_req = requests.get("https://{}/api/?".format(dev_ip), params=status_params, verify=False)
         if status_req.status_code != 200:
-            print "Request to check job status failed. Please log into device and " \
-                  "download the stats dump manually. Exiting now."
+            print("Request to check job status failed. Please log into device and " \
+                  "download the stats dump manually. Exiting now.")
+            print(status_req)
+            print(status_req.text)
             exit(1)
         status_xml = et.fromstring(status_req.content)
         status = status_xml.find('./result/job/status').text
         result = status_xml.find('./result/job/result').text
         if result == "PEND":
             progress = status_xml.find('./result/job/progress').text
-            print "Stats dump job progress: {}%".format(progress)
+            print("Stats dump job progress: {}%".format(progress))
         sleep(5)
+    print('stats dump file creation complete')
     return result
 
 
@@ -95,6 +102,7 @@ def downloadStats(dev_ip, panos_key, job_id):
                  "job-id" : job_id,
                  "key" : panos_key}
     dl_req = requests.get("https://{}/api/?".format(dev_ip), params=dl_params, stream=True, verify=False)
+    print('downloading stats dump file')
     with open(stats_file, 'wb') as f:
         for chunk in dl_req.iter_content(chunk_size=1024):
             if chunk:
@@ -104,19 +112,22 @@ def downloadStats(dev_ip, panos_key, job_id):
 
 def submitStats(file_name, opts):
     """Test function to submit stats dump for SLR generation"""
-    file1 = open(file_name, 'r')
+    file1 = open(file_name, 'rb')
     url = "https://riskreport.paloaltonetworks.com/API/v1/Create"
     headers = {"apiKey" : opts['cspKey']}
     file = {"file1":('stats_dump.tar.gz', file1, 'application/gzip')}
     payload = {"EmailIdList" : ",".join(opts['EmailIdList']),
                "RequestedBy" : opts["RequestedBy"],
                "PreparedBy" : opts['PreparedBy']}
+    print('uploading stats file and SLR parameters')
     slr_req = requests.post(url, headers=headers, data=payload, files=file)
     if slr_req.status_code != 200:
-        print "There was an issue submitting the stats dump:\n".format(slr_req.content)
+        print("There was an issue submitting the stats dump:\n".format(slr_req.content))
+        print(slr_req)
+        print(slr_req.text)
         exit(1)
-    print slr_req.content
-    print "Cleaning up stats dump."
+    print(slr_req.content)
+    print("Cleaning up stats dump.")
     os.remove(file_name)
 
 
@@ -142,6 +153,7 @@ def main():
     job_key = genStats(fw_ip, key)
     stats_file = downloadStats(fw_ip, key, job_key)
     submitStats(stats_file, options)
+    print('SLR creation complete. Check email provided in conf file')
 
 
 

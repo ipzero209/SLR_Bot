@@ -5,6 +5,20 @@ This version does require you to enter the username and password for the firewal
 that you are running the SLR against when the script is run. This can be modified
 as needed.
 
+## NOTE: For python3.6 in this repo
+Use the develop branch - master is from the original source
+This is a fork and code modified for python 3.6 that isn't merged back to the source
+
+For a python virtual environment include these additional steps in the cloned repo:
+
+Go into the repo directory
+
+```
+python3.6 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
 The configuration file ('slr.conf') contains the options currently supported by 
 the script. These options (and format) are:
 
@@ -41,4 +55,6 @@ To run the script, simply pass the IP address of the firewall that you would lik
 to run the SLR for using the -f or --firewall option:
 
 "/usr/bin/python slr_bot.py -f 192.168.1.1"
+
+
 
