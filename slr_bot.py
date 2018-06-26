@@ -12,8 +12,9 @@ import os
 # be able to support python 2.x or 3.x data input
 try:
    input = raw_input
-except NameError:
-   pass
+except NameError as e:
+   print("Error assigning raw_input as input")
+   print(e)
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
